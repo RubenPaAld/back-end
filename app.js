@@ -17,19 +17,38 @@ var app = express();
 mongoose.connection.openUri('mongodb://localhost:27017/hospital', { useNewUrlParser: true }, (err,res)=> {
     if (err) throw err;
 
-    console.log('Base de datos hospital en el puerto 27017: \x1b[32m%s\x1b[0m','online');
+    console.log('Base de datos hospitales en el puerto 27017: \x1b[32m%s\x1b[0m','online');
 });
 
+//serve-index
+/*
+
+const serveIndex = require('serve-index');
+app.use(express.static(__dirname + '/'));
+app.use('/uploads',serveIndex(__dirname + '/uploads', {'icons': true}));
+*/
+
+
 //importar rutas
-var appRoutes = require('./routes/app');
-var userRoutes = require('./routes/usuario');
-var loginRoutes = require('./routes/login');
+const appRoutes = require('./routes/app');
+const userRoutes = require('./routes/usuario');
+const loginRoutes = require('./routes/login');
+const hospitalRoutes = require('./routes/hospitales');
+const medicosRoutes = require('./routes/medicos');
+const busquedaRoutes = require('./routes/busqueda');
+const uploadRoutes = require('./routes/upload');
+const imagenesRoutes = require('./routes/imagenes');
 
 
 //rutas
-app.use('/', appRoutes);
+app.use('/imagenes', imagenesRoutes);
+app.use('/upload', uploadRoutes);
+app.use('/busqueda', busquedaRoutes);
 app.use('/user', userRoutes);
 app.use('/login', loginRoutes);
+app.use('/hospital', hospitalRoutes);
+app.use('/medico', medicosRoutes);
+app.use('/', appRoutes);
 
 //escuchar peticiones
 app.listen(3000, ()=> {
