@@ -16,6 +16,7 @@
     "express-fileupload": "^0.4.0",
     "file-type": "^8.1.0",
     "formidable": "^1.2.1",
+    "google-auth-library": "^1.6.1",
     "image-type": "^3.0.0",
     "is-image": "^2.0.0",
     "jsonwebtoken": "^8.3.0",
