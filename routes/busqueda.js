@@ -57,14 +57,11 @@ app.get('/coleccion/:tabla/:termino',(req,res) => {
     }
 });
 
-
-
-
 function buscarUsuarios (busqueda, regexp) {
 
     return new Promise ((resolve, reject) => {
 
-        Usuario.find({}, 'nombre email role')
+        Usuario.find({}, 'nombre email role img')
             .or([{'nombre': regexp}, {'email': regexp}])
             .exec((err, usuarios) => {
                 if (err) {
@@ -76,7 +73,6 @@ function buscarUsuarios (busqueda, regexp) {
 
     });
 }
-
 
 function buscarHospitales (busqueda, regexp) {
 
@@ -112,6 +108,5 @@ function buscarMedicos (busqueda, regexp) {
         });
     });
 }
-
 
 module.exports = app;

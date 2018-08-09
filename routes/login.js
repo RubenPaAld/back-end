@@ -52,7 +52,8 @@ app.post('/', (req,res) => {
             ok: true,
             usuario: userDb,
             token: token,
-            id: userDb.id
+            id: userDb.id,
+            menu: obtenerMenu(userDb.role)
         });
 
     });
@@ -104,15 +105,15 @@ app.post('/google', async(req, res) => {
             });
         }
 
-        if (userDb) {
+        if (userDb) { // si ya esta registrado el correo de google
 
-            if (userDb.goole === false) {
+            if (userDb.google === false) { //si ya existe un usuario registrado con el correo de google lo rechazamos y le pedimos un login normal
                 return res.status(400).json({
                     ok: false,
                     mensaje: 'Debe usar su autentificacion normal',
                     errors: err
                 });
-            } else {
+            } else {//retornamos el usuario
                 const token = jwt.sign({usuario: userDb}
                     , SEED
                     , {expiresIn: 14400}
@@ -122,10 +123,11 @@ app.post('/google', async(req, res) => {
                     ok: true,
                     usuario: userDb,
                     token: token,
-                    id: userDb.id
+                    id: userDb.id,
+                    menu: obtenerMenu(userDb.role)
                 });
             }
-        } else {
+        } else { //creamos el usuario con la cuenta de google
             const user = new Usuario();
 
             user.nombre = googleUser.nombre;
@@ -153,7 +155,8 @@ app.post('/google', async(req, res) => {
                     ok: true,
                     usuario: userDb2,
                     token: token,
-                    id: userDb2.id
+                    id: userDb2.id,
+                    menu: obtenerMenu(userDb2.role)
                 });
 
 
@@ -162,9 +165,40 @@ app.post('/google', async(req, res) => {
     });
 });
 
+function obtenerMenu(ROLE) {
 
+    var menu = [
+        {
+            titulo: 'Principal',
+            icono: 'mdi mdi-gauge',
+            submenu: [
+                {titulo: 'DashBoard', url: '/dashboard'},
+                {titulo: 'Progress', url: '/progress'},
+                {titulo: 'Graficas', url: '/graficas1'},
+                {titulo: 'Promesas', url: '/promesas'},
+                {titulo: 'Rxjs', url: '/rxjs'},
+                {titulo: 'Opciones', url: '/account-settings'},
+            ]
+        },
 
+    ];
 
+    console.log(ROLE);
 
+    if (ROLE === 'ADMIN_ROLE'){
+        //menu[1].submenu.unshift({titulo: 'Usuarios', url: '/usuarios'},{titulo: 'Hospitales', url: '/hospitales'},{titulo: 'Medicos', url: '/medicos'});
+        menu.push({
+            titulo: 'Mantenimiento',
+            icono: 'mdi mdi-folder-lock-open',
+            submenu: [
+                {titulo: 'Usuarios', url: '/usuarios'},
+                {titulo: 'Hospitales', url: '/hospitales'},
+                {titulo: 'Medicos', url: '/medicos'},
+            ]
+        });
+    }
+
+    return menu;
+}
 
 module.exports = app;

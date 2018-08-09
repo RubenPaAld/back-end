@@ -4,10 +4,6 @@ var mAuthentication = require('../middleware/autentication');
 var app = express();
 var Usuario = require('../models/usuario');
 
-
-
-
-
 /*
 Obtener todos los usuarios GET
  */
@@ -17,7 +13,7 @@ app.get('/',(req,res,next) => {
     var offset = req.query.offset || 0;
     offset = Number(offset);
 
-    Usuario.find({}, 'nombre email img role')
+    Usuario.find({}, 'nombre email img role google')
         .skip(offset)
         .limit(5)
         .exec((err, usuarios) => {
@@ -45,7 +41,7 @@ app.get('/',(req,res,next) => {
 /*
 Actualizar usuario PUT
  */
-app.put('/:id', mAuthentication.verificationToken ,(req, res) => {
+app.put('/:id', [mAuthentication.verificationToken, mAuthentication.verificaADMIN_ROLE_OR_SAME_USERR] ,(req, res) => {
 
     var id = req.params.id;
     var body = req.body;
@@ -84,7 +80,7 @@ app.put('/:id', mAuthentication.verificationToken ,(req, res) => {
 
             res.status(200).json({
                 ok: true,
-                body: usuarioGuardado,
+                usuario: usuarioGuardado,
             });
         });
     });
@@ -94,7 +90,7 @@ app.put('/:id', mAuthentication.verificationToken ,(req, res) => {
 /*
 Crear un nuevo usuario POST
  */
-app.post('/', mAuthentication.verificationToken ,(req,res) => {
+app.post('/',(req,res) => {
 
     var body = req.body;
 
@@ -129,7 +125,7 @@ app.post('/', mAuthentication.verificationToken ,(req,res) => {
 /*
 Borrar usuario DELETE
  */
-app.delete('/:id',mAuthentication.verificationToken, (req, res) => {
+app.delete('/:id',[mAuthentication.verificationToken, mAuthentication.verificaADMIN_ROLE], (req, res) => {
 
     var id = req.params.id;
 

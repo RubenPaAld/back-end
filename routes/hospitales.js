@@ -13,7 +13,7 @@ app.get('/',(req,res,next) => {
 
     Hospital.find({})
         .skip(offset)
-        .limit(5)
+        //.limit(5)
         .populate('usuario', 'nombre email')
         .exec((err, hospitales) => {
             if (err) {
@@ -36,9 +36,43 @@ app.get('/',(req,res,next) => {
 
 
 /*
+Obtener un hospital
+ */
+app.get('/:id', (req,res) => {
+
+    const id = req.params.id;
+
+    Hospital.findById(id)
+        .populate('usuario', 'nombre img email')
+        .exec( (err, hospital) => {
+
+            if (err) {
+                return res.status(500).json({
+                    ok: false,
+                    mensaje: 'Error al buscar hospital',
+                    errors: err
+                });
+            }
+
+            if (!hospital) {
+                return res.status(400).json({
+                    ok: false,
+                    mensaje: 'El hospital con id ' + id + ' no existe',
+                    errors: {message: 'no existe ningun hospital con ese id'}
+                });
+            }
+
+            return res.status(200).json({
+                ok: true,
+                hospital: hospital
+            });
+        });
+});
+
+/*
 Actualizar hospitales PUT
  */
-app.put('/:id', mAuthentication.verificationToken ,(req, res) => {
+app.put('/:id', [mAuthentication.verificationToken, mAuthentication.verificaADMIN_ROLE] ,(req, res) => {
 
     var id = req.params.id;
     var body = req.body;
@@ -86,7 +120,7 @@ app.put('/:id', mAuthentication.verificationToken ,(req, res) => {
 /*
 Crear un nuevo medico POST
  */
-app.post('/', mAuthentication.verificationToken ,(req,res) => {
+app.post('/', [mAuthentication.verificationToken, mAuthentication.verificaADMIN_ROLE] ,(req,res) => {
 
     var body = req.body;
 
@@ -118,7 +152,7 @@ app.post('/', mAuthentication.verificationToken ,(req,res) => {
 /*
 Borrar medico DELETE
  */
-app.delete('/:id',mAuthentication.verificationToken, (req, res) => {
+app.delete('/:id',[mAuthentication.verificationToken, mAuthentication.verificaADMIN_ROLE], (req, res) => {
 
     var id = req.params.id;
 

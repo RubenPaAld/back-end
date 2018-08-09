@@ -14,7 +14,7 @@ app.get('/',(req,res,next) => {
 
     Medico.find({})
         .skip(offset)
-        .limit(5)
+        //.limit(5)
         .populate('usuario', 'nombre email')
         .populate('hospital')
         .exec((err, medicos) => {
@@ -36,11 +36,43 @@ app.get('/',(req,res,next) => {
     });
 });
 
+/*
+Obtener un medico
+ */
+app.get('/:id',(req,res) => {
+   var id = req.params.id;
+
+   Medico.findById(id)
+       .populate('usuario','nombre email img')
+       .populate('hospital')
+       .exec( (err, medico) => {
+           if (err) {
+               return res.status(500).json({
+                   ok: false,
+                   mensaje: 'error al buscar el medico',
+                   errors: err
+               });
+           }
+
+           if (!medico) {
+               return res.status(400).json({
+                   ok: false,
+                   mensaje: 'El medico con el id' + id + ' no existe',
+                   errors: { message: 'No eixiste un medico con ese ID'}
+               });
+           }
+
+           res.status(200).json({
+               ok: true,
+               medico: medico,
+           });
+       })
+});
 
 /*
 Actualizar medicos PUT
  */
-app.put('/:id', mAuthentication.verificationToken ,(req, res) => {
+app.put('/:id', [mAuthentication.verificationToken, mAuthentication.verificaADMIN_ROLE] ,(req, res) => {
 
     var id = req.params.id;
     var body = req.body;
@@ -79,7 +111,7 @@ app.put('/:id', mAuthentication.verificationToken ,(req, res) => {
 
             res.status(200).json({
                 ok: true,
-                body: medicoGuardado,
+                medico: medicoGuardado,
             });
         });
     });
@@ -89,7 +121,7 @@ app.put('/:id', mAuthentication.verificationToken ,(req, res) => {
 /*
 Crear un nuevo medico POST
  */
-app.post('/', mAuthentication.verificationToken ,(req,res) => {
+app.post('/', [mAuthentication.verificationToken, mAuthentication.verificaADMIN_ROLE] ,(req,res) => {
 
     var body = req.body;
 
@@ -112,7 +144,7 @@ app.post('/', mAuthentication.verificationToken ,(req,res) => {
 
         res.status(201).json({
             ok: true,
-            body: medicoGuardado,
+            medico: medicoGuardado,
             usuarioToken: req.usuario
         });
     });
@@ -122,7 +154,7 @@ app.post('/', mAuthentication.verificationToken ,(req,res) => {
 /*
 Borrar medico DELETE
  */
-app.delete('/:id',mAuthentication.verificationToken, (req, res) => {
+app.delete('/:id',[mAuthentication.verificationToken, mAuthentication.verificaADMIN_ROLE], (req, res) => {
 
     var id = req.params.id;
 
@@ -146,7 +178,7 @@ app.delete('/:id',mAuthentication.verificationToken, (req, res) => {
 
         res.status(200).json({
             ok: true,
-            hospital: medicoBorrado,
+            medico: medicoBorrado,
         });
     });
 });

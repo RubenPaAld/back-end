@@ -17,6 +17,7 @@ app.put('/:tipo/:id',(req,res,next) => {
 
     const tiposValidos = ['medicos','hospitales','usuarios'];
 
+    //verificacion de que el tipo es valido
     if (tiposValidos.indexOf(tipo) < 0) {
         return res.status(400).json({
             ok: false,
@@ -33,15 +34,16 @@ app.put('/:tipo/:id',(req,res,next) => {
             const old_path = files.imagen.path;
             //const file_size = files.imagen.size;
 
-            const buffer = readChunk.sync(old_path, 0, 12);
-            const realType =  fileType(buffer);
+            const buffer = readChunk.sync(old_path, 0, 12); //leemos la imagen
+            const realType =  fileType(buffer); //obtenemos el tipo real
 
-            if (!realType.mime.startsWith('image')) {
+            if (!realType.mime.startsWith('image')) { //verificamos que el tipo real sea una imagen
                 return res.status(400).json({
                     ok:false,
                     mensaje: 'El archivo subido no es un tipo de imagen valido',
                 });
             }
+
             const nameArchivo = `${id}-${new Date().getMilliseconds()}.${realType.ext}`;
             const pathNew = `./uploads/${tipo}/${nameArchivo}`;
 
@@ -217,9 +219,6 @@ function subirPorTipo (tipo, id, nameArchivo, temporalImage, pathNew, res) {
                         }
                     });
                 });
-
-
-
             });
 
         });
